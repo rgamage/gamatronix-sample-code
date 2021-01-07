@@ -1,0 +1,297 @@
+Main
+;Gamoto standard library for Cricket Logo
+;These libraries assume two Gamoto motor drivers are attached,
+;set to address 0 and 1
+;These libraries also assume the position registers will not exceed +/-32,767 counts
+;to simplify the use of position variables, since Cricket variables are 
+;16 bits long.  To take full advantage of the Gamoto 24-bit position variables,
+;the position routines should be modified, and extra variables used for the upper bits.
+;
+;The typical format of the low-level commands require three parameters:
+; reg = Gamoto register location
+; val = Value to write
+; adr = Address of motor (0 or 1 typically).  This corresponds to the dipswitch
+;       settings on the Gamoto board.
+;
+; 5/5/04 : Updated for version 6 of firmware, to match new read, write protocol
+
+global [rval]
+
+to gxSetReg8 :reg :val :adr
+;Writes to an 8-bit register
+bsend 256 + 17
+bsend :adr
+bsend :reg
+bsend 1
+bsend low-byte :val
+end
+
+to gxSetReg16 :reg :val :adr
+;Writes to a 16-bit register
+bsend 256 + 17
+bsend :adr
+bsend :reg
+bsend 2
+bsend low-byte :val
+bsend high-byte :val
+end
+
+to gxSetReg24 :reg :val :adr
+;Writes a 16-bit value to a 24-bit register
+bsend 256 + 17
+bsend :adr
+bsend :reg
+bsend 3
+bsend low-byte :val
+bsend high-byte :val
+ifelse (:val < 0) [bsend 255] [bsend 0] ;sign-extend to 24 bits
+end
+
+to gxReadReg8 :reg :adr
+;Reads from an 8-bit register
+bsend 256 + 17
+bsend :adr + 128
+bsend :reg 
+output bsr 1
+end
+
+to gxReadReg16 :reg :adr
+;Reads from a 16-bit register
+bsend 256 + 17
+bsend :adr + 128
+bsend :reg 
+setrval  bsr 1
+setrval rval + (256 * bsr 1)
+output rval
+end
+
+to gxSetPosition :val :adr
+gxSetReg24 47 :val :adr
+end
+
+to gxSetMode :val :adr
+gxSetReg8 43 :val :adr
+end
+
+to gxPositionMode :adr
+gxSetMode 1 :adr
+end
+
+to gxVelocityMode :adr
+gxSetMode 5 :adr
+end
+
+to gxTrajMode :adr
+gxSetMode 3 :adr
+end
+
+to gxPwrMode :adr
+gxSetMode 17 :adr
+end
+
+to gxSetP :val :adr
+gxSetReg16 34 :val :adr
+end
+
+to gxSetI :val :adr
+gxSetReg16 36 :val :adr
+end
+
+to gxSetD :val :adr
+gxSetReg16 38 :val :adr
+end
+
+to gxSetHome
+;Set current position to home (0) position
+;NOTE: it's a good idea to first turn off the motor (mode=0) first, to avoid a jerk response
+gxSetPosition 0 0   ;set target (setPosition) to 0
+gxSetPosition 0 1
+gxSetReg24 51 0 0   ;set actual (mPosition) to 0
+gxSetReg24 51 0 1
+end
+
+to MotorOff :adr
+;Turns off motor, sets Velocity to 0, leaves in Position mode
+gxSetVelocity 0 :adr
+gxSetMode 0 :adr
+end
+
+to gxFactoryReset :adr
+;Resets key parameters to factory defaults
+gxSetReg8 0 0 :adr
+end
+
+to gxSaveParms :adr
+;Saves current key parameters to flash
+gxSetReg8 1 0 :adr
+end
+
+to gxSetiLimit :val :adr
+;Sets Integral Limit, iLimit
+gxSetReg16 40 :val :adr
+end
+
+to gxSetdS :val :adr
+;Sets dS, number of cycles to use in velocity calculations
+gxSetReg8 42 :val :adr
+end
+
+to gxSetPwrLimit :val :adr
+;Sets power limit (0 to 100% = 0 to 255) for motor
+gxSetReg8 44 :val :adr
+end
+
+to gxSetVelocity :val :adr
+;Sets target velocity, to be used while in Velocity mode
+gxSetReg16 54 :val :adr
+end
+
+to gxSetTrajectory :val :adr
+;Sets Trajectory index number (0 to 7)
+gxSetReg8 59 :val :adr
+end
+
+to gxSetmPower :val :adr
+;Sets power to deliver to motor, to be used while in Power mode
+gxSetReg8 60 :val :adr
+end
+
+to gxSetTrajX :traj :val :adr
+;Sets X (position) value of trajectory profile
+gxSetReg24 (180 + (7 * :traj)) :val :adr
+end
+
+to gxSetTrajV :traj :val :adr
+;Sets V (velocity) value of trajectory profile
+gxSetReg16 (183 + (7 * :traj)) :val :adr
+end
+
+to gxSetTrajA :traj :val :adr
+;Sets A (acceleration) value of trajectory profile
+gxSetReg16 (185 + (7 * :traj)) :val :adr
+end
+
+to gxReadMode :adr
+;Reads Mode byte
+output gxReadReg8 43 :adr
+end
+
+to gxReadPosition :adr
+;Reads actual position (mPosition) register
+output gxReadReg16 51 :adr 
+end
+
+to gxReadmVelocity :adr
+;Reads actual motor velocity (mPower) register
+output gxReadReg16 57 :adr
+end
+
+to gxReadmPower :adr
+;Reads actual power being sent to the motor
+output gxReadReg8 60 :adr
+end
+
+to gxReadError :adr
+;Reads actual error term (target position - actual position)
+output gxReadReg16 97 :adr
+end
+
+to gxReadVersion :adr
+;Reads firmware version of Gamoto
+output gxReadReg8 178 :adr
+end
+
+to gxReadCurrent :adr
+;Reads motor current
+output gxReadReg16 160 :adr
+end
+
+to gxReadAnalog :ch :adr
+;Reads analog channel # ch (0 - 4)
+output gxReadReg16 (160 + (2 * :ch)) :adr
+end
+
+to gxReadP :adr
+;Reads Kp constant
+output gxReadReg16 34 :adr
+end
+
+to gxReadI :adr
+;Reads Kp constant
+output gxReadReg16 36 :adr
+end
+
+to gxReadD :adr
+;Reads Kp constant
+output gxReadReg16 38 :adr
+end
+
+to TrajDone :adr
+; checks if trajectory has completed
+; returns 1 if done, 3 if not
+wait 3	;This wait is to reduce bus traffic during trajectory
+output (gxreadmode :adr)
+end
+
+;End of standard Gamoto Cricket library
+;======================================
+
+;======================================
+;Start of Example test program
+to gxInit
+; Initializes the Gamoto. Sets control constants 
+gxSetP 500 0
+gxSetI 3 0
+gxSetD 200 0
+end
+
+to MoveTest
+;Simple motion tests to verify Cricket control of motor
+;
+;Position Mode Test
+gxPositionMode 0
+wait 20
+gxSetPosition 250 0
+wait 20
+gxSetPosition -250 0
+wait 20
+gxSetPosition 0 0
+beep; End of Position test
+wait 20
+;
+;Velocity Mode Test
+gxVelocityMode 0
+beep ; signal start of test
+gxSetVelocity 1500 0
+wait 20
+gxSetVelocity 0 0
+wait 20
+gxSetVelocity -1500 0
+wait 20
+gxSetVelocity 0 0
+beep ; signal end of test
+wait 20
+;
+;Trajectory Mode Test
+gxPositionMode 0
+; program traj #0
+gxSetTrajX 0 10000 0
+gxSetTrajV 0 5000 0
+gxSetTrajA 0 10 0
+beep
+gxSetTrajectory 0 0  ; select traj # 0
+gxTrajMode 0  ; go !
+waituntil [(TrajDone 0) = 1]
+beep ;signal end of test
+;
+gxPositionMode 0
+end
+
+to Main
+;Main entry point of test program
+gxInit
+MoveTest
+end
+;End of Example Test Program
+;=====================================
+

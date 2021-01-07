@@ -1,0 +1,44 @@
+<html>
+<body>
+Gamoto Serial OOPic Example<br>
+<pre>
+'This program is a simple example of using the OOPic
+'to control a Gamoto, over the serial line
+'
+'It cycles the position setpoint from 0 to 254 and back to 0
+'again, and repeats.
+'
+'This example doesn't read any data from the Gamoto, not even
+'the "ACK" response, but this could easily be added, to confirm
+'the command was received.
+
+const Header = &HAA	'Gamoto serial header byte
+const setPosition = 47	'Gamoto register address
+const mPosition = 51	'Gamoto register address
+
+dim Serial as new oSerialx  	'Serial output can be on any pin
+dim i as byte			'looping index
+dim cs as byte 			'checksum byte
+
+sub Main()
+  oopic.delay = 200
+  serial.IOlineS = 8		'Connect this send line to Gamoto RX pin
+  serial.IOlineF = 0  		'disable flow control
+  Serial.baud = cv19200		'19200 baud
+  serial.operate = cvTrue
+ do
+  for i = 0 to 254
+    cs = 4 + setPosition + i	'Calculate checksum
+    'Serial protocol: HEADER + LEN + REGISTER_ADDRESS + DATA_lsb + DATA_mid + DATA_msb + CHECKSUM
+    Serial.string = chr$(Header) + chr$(4) + chr$(setPosition) + chr$(i) + chr$(0) + chr$(0) + chr$(cs)
+  next i
+  for i = 255 to 1 step -1
+    cs = 4 + setPosition + i
+    'Serial protocol: HEADER + LEN + REGISTER_ADDRESS + DATA_lsb + DATA_mid + DATA_msb + CHECKSUM
+    Serial.string = chr$(Header) + chr$(4) + chr$(setPosition) + chr$(i) + chr$(0) + chr$(0) + chr$(cs)
+  next i
+ loop
+end sub
+<pre>
+</body>
+</html>

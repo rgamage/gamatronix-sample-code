@@ -1,0 +1,64 @@
+'This program uses the I2C Object 
+'to access the Gamoto PID Motor Controller
+
+Const gxKp = 34
+Const gxKi = 36
+Const gxKd = 38
+Const gxKp = 34
+Const gxKi = 36
+Const gxKd = 38
+Const gxiL = 40
+Const gxdS = 42
+Const gxMode = 43
+Const gxpwrLimit = 44
+Const gxdummy1 = 45
+Const gxsetPosition = 47
+Const gxmPosition = 51
+Const gxsetVelocity = 54
+Const gxmVelocity = 57
+Const gxsegnum = 59
+Const mPower = 60
+Const UpCount = 70
+Const DnCount = 71
+Const Ypid = 101
+Const dBug1 = 122
+Const dBug2 = 123
+Const Analog0 = 160
+Const Analog1 = 162
+Const Analog2 = 164
+Const Analog3 = 166
+Const Analog4 = 168
+Const Profile0 = 180
+Const Version = 178
+
+
+Dim A As New oI2C
+Dim B As New oDio8
+Dim C as New oWord
+Dim F as New oFreq
+Dim i as word
+
+Sub E()
+  F.Beep(61743,10)
+  OOPic.Delay = 2
+End Sub
+
+Sub Main()
+  A.Node = 72		'I2C node address / 2
+  A.NoInc = cvFalse	'increment address each time
+  A.Mode = 1		'Use 8-bit Addresses
+  A.Width = 1		'Read 16-bit values
+  A.Location = 36		'Ki register
+  C = A.Value 
+  C = C.
+'  for i = 1 to C
+'	E
+ ' next i
+'  oopic.delay = 5
+'  A.Value = 5
+'  oopic.delay = 10
+'  C = A.Value
+'  for i = 1 to C
+'	E
+'  next i
+End Sub

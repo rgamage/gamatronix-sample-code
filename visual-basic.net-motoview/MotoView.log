@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UpgradeLog>
+    <Settings>
+        <Setting
+            Name = "LogFile"
+            Value = "MotoView.log"
+        />
+        <Setting
+            Name = "GenerateInterfacesForClasses"
+            Value = "FALSE"
+        />
+        <Setting
+            Name = "ProjectName"
+            Value = "MotoView"
+        />
+        <Setting
+            Name = "OutputName"
+            Value = "MotoView.vbproj"
+        />
+        <Setting
+            Name = "OutputDir"
+            Value = "D:\gamoto\vb.net\src\MotoView.NET"
+        />
+        <Setting
+            Name = "ProjectPath"
+            Value = "D:\gamoto\vb.net\src\MotoView.vbp"
+        />
+        <Setting
+            Name = "MigrateProjectTo"
+            Value = "0"
+        />
+    </Settings>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmMain.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmMain.vb"
+        FileType = "MDI Form"
+        Upgraded = "True"
+    >
+        <Section Name = "(Layout)" >
+            <Issue
+                Type = "Design"
+                Number = "2020"
+                ObjectName = "Timeout1"
+                ObjectType = "Timer"
+                PME = "Interval"
+            >Timer property Timeout1.Interval cannot have a value of 0.</Issue>
+        </Section>
+        <Section Name = "MDIForm_Load" >
+            <Issue
+                Type = "Runtime"
+                Number = "2020"
+                ObjectName = "Timeout1"
+                ObjectType = "Timer"
+                PME = "Interval"
+            >Timer property Timeout1.Interval cannot have a value of 0.</Issue>
+        </Section>
+        <Section Name = "MDIForm_Unload" >
+            <Issue
+                Type = "Runtime"
+                Number = "2065"
+                ObjectName = "frmMain"
+                ObjectType = "Form"
+                PME = "Unload"
+            >Form event frmMain.Unload has a new behavior.</Issue>
+        </Section>
+        <Section Name = "MSComm1_OnComm" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object MSComm1.Input.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object frmMain.MSComm1.Input.</Issue>
+        </Section>
+        <Section Name = "Timeout1_Timer" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object MSComm1.Input.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmAbout.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmAbout.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    >
+        <Section Name = "Form_Load" >
+            <Issue
+                Type = "Compile"
+                Number = "2069"
+                ObjectName = "App"
+                ObjectType = "App"
+                PME = "Revision"
+            >App property App.Revision was not upgraded.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmAnalog.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmAnalog.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    >
+        <Section Name = "(Layout)" >
+            <Issue
+                Type = "Design"
+                Number = "2020"
+                ObjectName = "Timer1"
+                ObjectType = "Timer"
+                PME = "Interval"
+            >Timer property Timer1.Interval cannot have a value of 0.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmComm.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmComm.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    />
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmPID.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmPID.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    >
+        <Section Name = "Check1_Click" >
+            <Issue
+                Type = "Runtime"
+                Number = "2075"
+            >Event Check1.CheckStateChanged may fire when form is initialized.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmProfiles.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmProfiles.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    >
+        <Section Name = "cboProfile_Click" >
+            <Issue
+                Type = "Runtime"
+                Number = "2075"
+            >Event cboProfile.SelectedIndexChanged may fire when form is initialized.</Issue>
+        </Section>
+        <Section Name = "cmdSave_Click" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object vbResponse.</Issue>
+        </Section>
+        <Section Name = "txtA_Change" >
+            <Issue
+                Type = "Runtime"
+                Number = "2075"
+            >Event txtA.TextChanged may fire when form is initialized.</Issue>
+        </Section>
+        <Section Name = "txtV_Change" >
+            <Issue
+                Type = "Runtime"
+                Number = "2075"
+            >Event txtV.TextChanged may fire when form is initialized.</Issue>
+        </Section>
+        <Section Name = "txtX_Change" >
+            <Issue
+                Type = "Runtime"
+                Number = "2075"
+            >Event txtX.TextChanged may fire when form is initialized.</Issue>
+        </Section>
+        <Section Name = "UpdateTime" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object acps2.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object tA.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Min().</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object v.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object vMax.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object xA.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\frmRegView.frm"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\frmRegView.vb"
+        FileType = "Form"
+        Upgraded = "True"
+    >
+        <Section Name = "(Layout)" >
+            <Issue
+                Type = "Design"
+                Number = "2020"
+                ObjectName = "Timer1"
+                ObjectType = "Timer"
+                PME = "Interval"
+            >Timer property Timer1.Interval cannot have a value of 0.</Issue>
+        </Section>
+    </File>
+    <File
+        OldPath = "D:\gamoto\vb.net\src\Module2.bas"
+        NewPath = "D:\gamoto\vb.net\src\MotoView.NET\Module2.vb"
+        FileType = "Module"
+        Upgraded = "True"
+    >
+        <Section Name = "Min" >
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object Min.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object x.</Issue>
+            <Issue
+                Type = "Runtime"
+                Number = "1037"
+            >Couldn't resolve default property of object y.</Issue>
+        </Section>
+    </File>
+</UpgradeLog>
+

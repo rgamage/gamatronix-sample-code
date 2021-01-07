@@ -1,0 +1,267 @@
+'This program uses the I2C Object 
+'to access the Gamoto PID Motor Controller
+
+Const gxKp = 34
+Const gxKi = 36
+Const gxKd = 38
+Const gxiL = 40
+Const gxdS = 42
+
+Const gxMode = 43
+Const gxPositionMode = 1
+Const	gxTrajMode = 3
+Const	gxVelocityMode = 5
+Const	gxPowerMode = 17
+
+Const gxpwrLimit = 44
+Const gxdummy1 = 45
+Const gxsetPosition = 47
+Const gxmPosition = 51
+Const gxsetVelocity = 54
+Const gxmVelocity = 57
+Const gxTrajectory = 59
+Const mPower = 60
+Const UpCount = 70
+Const DnCount = 71
+Const Ypid = 101
+Const dBug1 = 122
+Const dBug2 = 123
+Const Analog0 = 160
+Const Analog1 = 162
+Const Analog2 = 164
+Const Analog3 = 166
+Const Analog4 = 168
+Const Profile0 = 180
+Const Version = 178
+Const gxTrajx = 180
+Const gxTrajv = 183
+Const gxTraja = 185
+
+Dim Gamoto As New oI2C
+Dim B As New oDio8
+Dim C as New oWord
+Dim i as word
+Dim F as New oFreq
+Dim S as New oSerial
+Dim Pos as New oWord
+
+Sub I2C_Init()
+	'Initialize Gamoto I2C object to communicate with the Gamoto
+	Gamoto.Node = 72	'I2C Node address = 144/2 = $90/2 = 72
+	Gamoto.NoInc = cvFalse	'Increment address each time
+	Gamoto.Mode = 1		'Use 8-bit addresses
+	Gamoto.Width = 0	'Read/Write 8-bits of data at a time
+End Sub
+
+Sub gxWrite8(Register1 as Byte, Wdata1 as Byte)
+	'Writes to an 8-bit Gamoto register
+	Gamoto.Location = Register1
+	Gamoto.Value = Wdata1
+End Sub
+
+Sub gxWrite16(Register2 as Byte, Wdata2 as Word)
+	'Writes to a 16-bit Gamoto Register
+	Gamoto.Location = Register2
+	Gamoto.Value = Wdata2 mod 256	'LSB
+	Gamoto.Value = Wdata2 / 256	'MSB
+End Sub
+
+Sub gxWrite24(Register3 as Byte, Wdata3 as Word)
+	'Writes to a 24-bit Gamoto Register
+	'Note that we are not handling 24-bit variables, since the OOPic doesn't support them
+	'If needed, the extra high byte could be passed and pieced together to handle
+	'True 24-bit data, but for this example we are keeping it simple.
+	Gamoto.Location = Register3
+	Gamoto.Value = Wdata3 mod 256	'LSB
+	Gamoto.Value = Wdata3 / 256	'Middle byte
+	if Wdata3 > 32767 then
+		Gamoto.Value = 255	'Sign-extend to 24-bits for negative case
+	else
+		Gamoto.Value = 0	'Sign-extend to 24-bits for positive case
+	end if
+End Sub
+
+Function gxRead8(Register4 as Byte) as Byte
+	Gamoto.Location = Register4
+	gxRead8 = Gamoto.Value
+End Function
+
+Function gxRead16(Register5 as Byte) as Word
+	Gamoto.Location = Register5
+	gxRead16 = Gamoto.Value + 256*Gamoto.Value
+End Function
+ 
+Function gxRead24(Register6 as Byte) as Word
+	Gamoto.Location = Register6
+	gxRead24 = Gamoto.Value + 256*Gamoto.Value
+End Function
+
+Sub ShowPos()
+	I2C_Init
+	S.Operate = cvTrue
+	S.Baud = cv9600
+	'Turn off power to motor, allow free motion of shaft
+	gxWrite8(gxMode,0)
+	'Now constantly show motor position
+	Do
+ 	  Pos = gxRead16(gxmPosition)
+	  S.String = str$(Pos)
+   	  S.Value = 10
+	  S.Value = 13
+	  OOPic.Delay = 100
+	Loop
+End Sub
+
+Sub Main()
+	'Signal start of program with a beep
+	F.Beep(61743,10)
+
+	'Initialize and configure I2C object to talk to the Gamoto
+      I2C_Init
+	
+'debug
+'	do until 1=0
+'		Pos = gxRead8(34)
+'	loop
+
+	'Set up P,I, and D parameters
+	gxWrite16(gxKp,500)
+	gxWrite16(gxKi,3)
+	gxWrite16(gxKd,200)
+	
+	'Test Position Mode
+	gxWrite8(gxMode,gxPositionMode)
+	gxWrite24(gxsetPosition,100)
+	OOPic.delay = 200
+	gxWrite24(gxsetPosition,-100)
+	OOPic.delay = 200
+	gxWrite24(gxsetPosition,0)
+	OOPic.delay = 500
+	F.Beep(61743,10)	
+	
+	'Test Velocity Mode
+	gxWrite16(gxsetVelocity,500)
+	gxWrite8(gxMode,gxVelocityMode)
+	OOPic.delay = 500
+	gxWrite16(gxsetVelocity,-500)
+	OOPic.delay = 500
+	gxWrite16(gxsetVelocity,0)
+	gxWrite8(gxMode,gxPositionMode)
+	F.Beep(61743,10)	
+	
+	'Test Trajectory Mode
+	'Program trajectory #0 (out of 7 total)
+	gxWrite24(gxTrajx,10000)
+	gxWrite16(gxTrajv,1000)
+	gxWrite16(gxTraja,2)
+	'Prepare to run Trajectory #0
+	gxWrite8(gxTrajectory,0)
+	'GO!
+	gxWrite8(gxMode,gxTrajMode)
+	'Now wait until it's finished
+	do until gxRead8(gxMode) = 1
+		OOPic.Delay = 10
+	loop
+	'Signal we're done
+	F.Beep(61743,10)
+
+'************************************************
+	Gamoto.Node=72
+	gxWrite8(145,128)	'Set general call to ENABLE
+	Gamoto.Node=73
+	gxWrite8(145,128)	'Set general call to ENABLE
+'*************************************************
+	Gamoto.Node=73
+	'Set up P,I, and D parameters
+	gxWrite16(gxKp,500)
+	gxWrite16(gxKi,3)
+	gxWrite16(gxKd,200)
+	
+	'Test Position Mode
+	gxWrite8(gxMode,gxPositionMode)
+	gxWrite24(gxsetPosition,100)
+	OOPic.delay = 200
+	gxWrite24(gxsetPosition,-100)
+	OOPic.delay = 200
+	gxWrite24(gxsetPosition,0)
+	OOPic.delay = 500
+	F.Beep(61743,10)	
+	
+	'Test Velocity Mode
+	gxWrite16(gxsetVelocity,500)
+	gxWrite8(gxMode,gxVelocityMode)
+	OOPic.delay = 500
+	gxWrite16(gxsetVelocity,-500)
+	OOPic.delay = 500
+	gxWrite16(gxsetVelocity,0)
+	gxWrite8(gxMode,gxPositionMode)
+	F.Beep(61743,10)	
+	
+	'Test Trajectory Mode
+	'Program trajectory #0 (out of 7 total)
+	gxWrite24(gxTrajx,10000)
+	gxWrite16(gxTrajv,1000)
+	gxWrite16(gxTraja,2)
+	'Prepare to run Trajectory #0
+	gxWrite8(gxTrajectory,0)
+	'GO!
+	gxWrite8(gxMode,gxTrajMode)
+	'Now wait until it's finished
+	do until gxRead8(gxMode) = 1
+		OOPic.Delay = 10
+	loop
+	'Signal we're done
+	F.Beep(61743,10)
+
+'**************************************
+	Gamoto.Node=0	'Control both motors at once
+	'Set up P,I, and D parameters
+	gxWrite16(gxKp,500)
+	gxWrite16(gxKi,3)
+	gxWrite16(gxKd,200)
+	
+	'Test Position Mode
+	gxWrite8(gxMode,gxPositionMode)
+	gxWrite24(gxsetPosition,100)
+	OOPic.delay = 200
+	gxWrite24(gxsetPosition,-100)
+	OOPic.delay = 200
+	gxWrite24(gxsetPosition,0)
+	OOPic.delay = 500
+	F.Beep(61743,10)	
+	
+	'Test Velocity Mode
+	gxWrite16(gxsetVelocity,500)
+	gxWrite8(gxMode,gxVelocityMode)
+	OOPic.delay = 500
+	gxWrite16(gxsetVelocity,-500)
+	OOPic.delay = 500
+	gxWrite16(gxsetVelocity,0)
+	gxWrite8(gxMode,gxPositionMode)
+	F.Beep(61743,10)	
+	
+	'Test Trajectory Mode
+	'Program trajectory #0 (out of 7 total)
+	gxWrite24(gxTrajx,10000)
+	gxWrite16(gxTrajv,1000)
+	gxWrite16(gxTraja,2)
+	'Prepare to run Trajectory #0
+	gxWrite8(gxTrajectory,0)
+	'GO!
+	gxWrite8(gxMode,gxTrajMode)
+	'Now wait until it's finished
+	do until gxRead8(gxMode) = 1
+		OOPic.Delay = 10
+	loop
+	'Signal we're done
+	F.Beep(61743,10)
+
+'**************************************
+
+
+	Gamoto.Node = 72   'Set I2C address back to normal address
+	
+	'Now show motor position
+	'If you turn the shaft, you'll see the changes in the terminal window
+	ShowPos	
+End Sub

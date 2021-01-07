@@ -1,0 +1,242 @@
+' PicBasic Pro I2C Example - Tested on a PIC16F876
+' Tested using PBPro version 2.42
+
+'Randy Gamage, 3/12/2005
+
+'This example program demonstrates reading and writing to the Gamoto-1 PID
+'Motor controller, using the hardware I2C peripheral for communication.
+'Uses PIC's hardware USART to send status messages to PC/terminal
+
+'Use this command only if you are using the ME-LABS serial bootloader, ME-LOADER
+'Otherwise it should be commented out
+DEFINE  ONINT_USED      1      	'For use with melabs Loader
+DEFINE OSC 20			'Set to actual clock frequency
+DEFINE HSER_BAUD 19200		'Set to baud rate for hardware USART debug messages
+
+
+'Keep this line if your device is running at >8 Mhz
+DEFINE I2C_SLOW		1	'For devices >8 MHz, keep I2C speed at 100kHz max
+DEFINE I2C_HOLD		1	'Allows the Gamoto to hold the clock low until ready to transmit
+
+reg	var	byte		' register number to read/write
+rdata	var	word		' data read from Gamoto
+wdata	var	word		' data to write
+hdata	var	byte		' high byte of 24-bit data
+sda	var	PORTC.4		' SDA pin - should be connected to Gamoto's RX pin
+scl	var	PORTC.3		' RX pin - should be connected to Gamoto's TX pin
+
+'Define system constants
+BAUD		Con	84	'set to 84 for 9600 baud, 32 for 19200 baud
+cr		Con	13	'carriage return
+lf		Con	10	'linefeed
+
+'Define Gamoto constants
+control		Con	$90
+PosMode		Con	1
+TrajMode	Con	3
+VelMode		Con	5
+PowerMode	Con	17
+
+'Define Gamoto command registers
+FactoryResetCmd Con 	 0
+StoreFlashCmd 	Con 	 1
+'To execute a command, write one byte (any value) to that register
+
+'Define Gamoto register addresses
+Kp 		Con 	 34
+Ki 		Con 	 36
+Kd 		Con 	 38
+iL 		Con 	 40
+dS 		Con 	 42
+Mode 		Con 	 43
+pwrLimit 	Con 	 44
+Mode2 		Con 	 45
+setPosition 	Con 	 47
+mPosition 	Con 	 51
+setVelocity 	Con 	 54
+mVelocity 	Con 	 57
+trajectory	Con 	 59
+mPower 		Con 	 60
+UpCount 	Con 	 70
+DnCount 	Con 	 71
+Ypid 		Con 	 101
+Analog0 	Con 	 160
+Analog1 	Con 	 162
+Analog2 	Con 	 164
+Analog3 	Con 	 166
+Analog4 	Con 	 168
+Version 	Con 	 178
+X0	 	Con 	 180
+V0		Con	 183
+A0		Con	 185
+
+' This command is only needed if you are using one of the analog pins for digital use,
+' because they default to analog configuration
+        ADCON1 = $06	' set all analog pins to digital (for PIC16F876/77)
+
+	goto Main		'jump to Main routine
+
+'************************************************************************************
+' Gamoto-1 Read/Write routines
+gxRead1:
+'	Read a one-byte register from the Gamoto
+'	Inputs: reg = register to read
+'	Output: rdata = value returned from read
+	i2cread sda,scl,control,reg,[rdata.lowbyte]
+	return
+
+gxRead2:
+'	Read a two-byte register from the Gamoto
+'	Inputs: reg = register to read
+'	Output: rdata = value returned from read
+'	We use the STR modifier because it reads lsb first, msb second, matching the Gamoto format
+	i2cread sda,scl,control,reg,[rdata.lowbyte,rdata.highbyte]
+	return
+
+gxRead3:
+'	Read a three-byte register from the Gamoto
+'	Inputs: reg = register to read
+'	Output: rdata = value returned from read (16-bits)
+'	We use the STR modifier because it reads lsb first, msb second, matching the Gamoto format
+	i2cread sda,scl,control,reg,[rdata.lowbyte,rdata.highbyte,hdata]
+	'Note that this assumes the returned 24-bit value will never be > 16 bits, due
+	'to the variable size limits of PBPro. To take full advantage of 24-bit values,
+	'you would need to do some fancy math manipulations.
+	'hdata holds the third byte if needed
+	return
+
+gxWrite1:
+'	Write to a one-byte register in the Gamoto
+'	Inputs: reg = register to write to
+'		wdata = data to write
+'	Output: none
+	i2cwrite sda,scl,control,reg,[wdata.lowbyte]
+	return
+
+gxWrite2:
+'	Write to a two-byte register in the Gamoto
+'	Inputs: reg = register to write to
+'		wdata = data to write
+'	Output: none
+	i2cwrite sda,scl,control,reg,[wdata.lowbyte,wdata.highbyte]
+	return
+	
+gxWrite3:
+'	Write to a three-byte register in the Gamoto
+'	Inputs: reg = register to write to
+'		wdata = data to write
+'	Output: none
+'	Uses hdata to sign-extend 24-bit number, according to sign of 16-bit wdata
+	hdata = 0	'assume positive number
+	if wdata < 32768 then positive
+	hdata = $FF	'sign extend negative number
+positive:
+	i2cwrite sda,scl,control,reg,[wdata.lowbyte,wdata.highbyte,hdata]
+	return
+'********************************************************************************************
+
+'Beginning of test routine        
+Main:
+	pause 1000
+	hserout ["Beginning test routine...",lf,cr]
+
+'debug
+'	reg=Mode
+'	wdata=0
+'	gosub gxWrite1	'turn off motor power
+'	pause 500
+'dloop:
+'	reg=mPosition
+'	gosub gxRead2
+'	hserout ["mPosition=",SDEC rdata,lf,cr]
+'	pause 500
+'	goto dloop
+'end debug
+
+	reg=mPosition
+	gosub gxRead3
+
+	Hserout ["Start position = ",SDEC rdata,lf,cr]	' Send char out serial port
+	
+	pause 1000
+
+' Set to Position mode, move to series of positions
+	hserout ["Position mode test",lf,cr]
+
+	reg=Mode
+	wdata=PosMode
+	gosub gxWrite1	'set to position mode
+	
+	reg=setPosition
+	wdata=500
+	gosub gxWrite3 'move to 500
+	
+	pause 1000
+	
+	wdata= -500
+	gosub gxWrite3 'move to -500
+	
+	pause 1000
+
+	wdata=0
+	gosub gxWrite3 'move back to 0
+	
+	pause 1000
+
+' Test velocity mode
+	hserout ["Velocity mode test",lf,cr]
+
+	reg=Mode
+	wdata=VelMode
+	gosub gxWrite1
+	
+	reg=setVelocity
+	wdata=1000
+	gosub gxWrite2	'set velocity to 1000
+	
+	pause 5000	'cruise for 5 seconds
+	
+	wdata=0
+	gosub gxWrite2	'stop motor
+	
+	pause 2000
+	
+' Set Trajectory, run trajectory
+	hserout ["Trajectory mode test",lf,cr]
+
+	reg=X0
+	wdata=20000
+	gosub gxWrite3	'set distance for traj 0
+	
+	reg=V0
+	wdata=5000
+	gosub gxWrite2 'set velocity for traj 0
+	
+	reg=A0
+	wdata=15
+	gosub gxWrite2 'set acceleration for traj 0
+		
+	reg=trajectory
+	wdata=0
+	gosub gxWrite1	'choose trajectory 0
+	
+	reg=Mode
+	wdata=TrajMode
+	gosub gxWrite1	'set trajectory mode, start motion
+	
+retry1:
+	pause 100	'need a min. 10ms delay here, to avoid interrupting the Gamoto PID loop too often
+			'because the I2C comm causes an interrupt.  Serial comm does not have this trouble
+	gosub gxRead1
+	if rdata = TrajMode then retry1	'wait for end of trajectory
+
+	pause 2000
+	
+' Return home
+	hserout ["Returning home",lf,cr]
+
+	reg=setPosition
+	wdata=0	
+	gosub gxWrite3	'return to home position
+
+	End

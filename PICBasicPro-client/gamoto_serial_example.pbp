@@ -1,0 +1,249 @@
+' PicBasic Pro Serial Example - Tested on a PIC16F876
+' Tested using PBPro version 2.42
+
+'Randy Gamage, 3/12/2005
+
+'This example program demonstrates reading and writing to the Gamoto-1 PID
+'Motor controller, using any available pin for serial communication.
+'The hardware USART is used to send messages to a PC terminal
+
+'Use this command only if you are using the ME-LABS serial bootloader, ME-LOADER
+'Otherwise it should be commented out
+DEFINE  ONINT_USED      1      ' For use with melabs Loader
+
+reg	var	byte		' register number to read/write
+rdata	var	word		' data to read
+wdata	var	word		' data to write
+hdata	var	byte		' high byte of 24-bit data
+cs	var	byte		' checksum byte
+tx	var	PORTA.1		' TX pin - should be connected to Gamoto's RX pin
+rx	var	PORTA.2		' RX pin - should be connected to Gamoto's TX pin
+
+DEFINE OSC 20			' Set this to your actual crystal speed
+DEFINE HSER_BAUD 19200
+
+'Define system constants
+BAUD		Con	32	'set to 84 for 9600 baud, 32 for 19200 baud
+TIMEOUT		Con	2	'timeout in ms to get a reply from the Gamoto
+cr		Con	13	'carriage return
+lf		Con	10	'linefeed
+
+'Define Gamoto constants
+HEADER		Con	$AA	'add 0..7 for dipswitch settings other than 000
+				'for example if the dipswitches are set to 011 = 3,
+				'then HEADER = $AD
+ACK 		Con 	$41	'expected acknowledge char from Gamoto
+'Mode settings for Gamoto
+PosMode		Con	1
+TrajMode	Con	3
+VelMode		Con	5
+PowerMode	Con	17
+
+'Define Gamoto command registers
+FactoryResetCmd Con 	 0
+StoreFlashCmd 	Con 	 1
+'To execute a command, write one byte (any value) to that register
+
+'Define Gamoto register addresses
+Kp 		Con 	 34
+Ki 		Con 	 36
+Kd 		Con 	 38
+iL 		Con 	 40
+dS 		Con 	 42
+Mode 		Con 	 43
+pwrLimit 	Con 	 44
+Mode2 		Con 	 45
+setPosition 	Con 	 47
+mPosition 	Con 	 51
+setVelocity 	Con 	 54
+mVelocity 	Con 	 57
+trajectory	Con 	 59
+mPower 		Con 	 60
+UpCount 	Con 	 70
+DnCount 	Con 	 71
+Ypid 		Con 	 101
+Analog0 	Con 	 160
+Analog1 	Con 	 162
+Analog2 	Con 	 164
+Analog3 	Con 	 166
+Analog4 	Con 	 168
+Version 	Con 	 178
+X0	 	Con 	 180
+V0		Con	 183
+A0		Con	 185
+
+' This command is only needed if you are using one of the analog pins for digital use,
+' because they default to analog configuration
+        ADCON1 = $06	' set all analog pins to digital (for PIC16F876/77)
+
+	goto Main		'jump to Main routine
+
+'************************************************************************************
+' Gamoto-1 Read/Write routines
+gxRead1:
+'	Read a one-byte register from the Gamoto
+'	Inputs: reg = register to read
+'	Output: rdata = value returned from read
+	'calculate checksum:
+	cs = $82 + reg + 1
+resend1:
+	serout2 tx,BAUD,[HEADER,$82,reg,1,cs]		'send read command
+	serin2 rx,BAUD,TIMEOUT,resend1,[WAIT(ACK),rdata]	'get answer from Gamoto
+	return
+
+gxRead2:
+'	Read a two-byte register from the Gamoto
+'	Inputs: reg = register to read
+'	Output: rdata = value returned from read
+	'calculate checksum:
+	cs = $82 + reg + 2
+resend2:
+	serout2 tx,BAUD,[HEADER,$82,reg,2,cs]		'send read command
+	serin2 rx,BAUD,TIMEOUT,resend2,[WAIT(ACK),rdata.lowbyte,rdata.highbyte]	'get answer from Gamoto
+	return
+
+gxRead3:
+'	Read a three-byte register from the Gamoto
+'	Inputs: reg = register to read
+'	Output: rdata = value returned from read (16-bits)
+	'calculate checksum:
+	cs = $82 + reg + 3
+resend3:
+	serout2 tx,BAUD,[HEADER,$82,reg,3,cs]		'send read command
+	serin2 rx,BAUD,TIMEOUT,resend3,[WAIT(ACK),rdata.lowbyte,rdata.highbyte,hdata]	'get answer from Gamoto
+
+	'Note that this assumes the returned 24-bit value will never be > 16 bits, due
+	'to the variable size limits of PBPro. To take full advantage of 24-bit values,
+	'you would need to do some fancy math manipulations.
+	return
+
+gxWrite1:
+'	Write to a one-byte register in the Gamoto
+'	Inputs: reg = register to write to
+'		wdata = data to write
+'	Output: none
+	'calculate checksum:
+	cs = $02 + reg + wdata.lowbyte
+resendW1:
+	serout2 tx,BAUD,[HEADER,2,reg,wdata.lowbyte,cs]		'send read command
+	serin2 rx,BAUD,TIMEOUT,resendW1,[WAIT(ACK),cs]		'get answer from Gamoto
+	return
+
+gxWrite2:
+'	Write to a two-byte register in the Gamoto
+'	Inputs: reg = register to write to
+'		wdata = data to write
+'	Output: none
+	'calculate checksum:
+	cs = $03 + reg + wdata.lowbyte + wdata.highbyte
+resendW2:
+	serout2 tx,BAUD,[HEADER,3,reg,wdata.lowbyte,wdata.highbyte,cs]	'send read command
+	serin2 rx,BAUD,TIMEOUT,resendW2,[WAIT(ACK),cs]		'get answer from Gamoto
+	return
+	
+gxWrite3:
+'	Write to a three-byte register in the Gamoto
+'	Inputs: reg = register to write to
+'		wdata = data to write
+'	Output: none
+'	Uses hdata to sign-extend 24-bit number, according to sign of 16-bit wdata
+	hdata = 0	'assume positive number
+	if wdata < 32768 then positive
+	hdata = $FF	'sign extend negative number
+positive:
+	'calculate checksum:
+	cs = $04 + reg + wdata.lowbyte + wdata.highbyte + hdata
+resendW3:
+	serout2 tx,BAUD,[HEADER,4,reg,wdata.lowbyte,wdata.highbyte,hdata,cs]		'send read command
+	serin2 rx,BAUD,TIMEOUT,resendW3,[WAIT(ACK),cs]		'get answer from Gamoto
+	return
+'********************************************************************************************
+
+'Beginning of test routine        
+Main:
+	hserout ["Beginning test routine...",lf,cr]
+
+	reg=mPosition
+	gosub gxRead2
+
+	Hserout ["Start position = ",SDEC rdata,lf,cr]	' Send char out serial port
+	pause 1000
+
+' Set to Position mode, move to series of positions
+	hserout ["Position mode test",lf,cr]
+
+	reg=Mode
+	wdata=PosMode
+	gosub gxWrite1	'set to position mode
+	
+	reg=setPosition
+	wdata=500
+	gosub gxWrite3 'move to 500
+	
+	pause 1000
+	
+	wdata= -500
+	gosub gxWrite3 'move to -500
+	
+	pause 1000
+
+	wdata=0
+	gosub gxWrite3 'move back to 0
+	
+	pause 1000
+
+' Test velocity mode
+	hserout ["Velocity mode test",lf,cr]
+
+	reg=Mode
+	wdata=VelMode
+	gosub gxWrite1
+	
+	reg=setVelocity
+	wdata=1000
+	gosub gxWrite2	'set velocity to 1000
+	
+	pause 5000	'cruise for 5 seconds
+	
+	wdata=0
+	gosub gxWrite2	'stop motor
+	
+	pause 2000
+	
+' Set Trajectory, run trajectory
+	hserout ["Trajectory mode test",lf,cr]
+
+	reg=X0
+	wdata=20000
+	gosub gxWrite3	'set distance for traj 0
+	
+	reg=V0
+	wdata=5000
+	gosub gxWrite2 'set velocity for traj 0
+	
+	reg=A0
+	wdata=10
+	gosub gxWrite2 'set acceleration for traj 0
+		
+	reg=trajectory
+	wdata=0
+	gosub gxWrite1	'choose trajectory 0
+	
+	reg=Mode
+	wdata=TrajMode
+	gosub gxWrite1	'set trajectory mode, start motion
+	
+TrajWait:
+	gosub gxRead1
+	if rdata = TrajMode then TrajWait	'wait for end of trajectory
+
+	pause 2000
+	
+' Return home
+	hserout ["Returning home",lf,cr]
+
+	reg=setPosition
+	wdata=0	
+	gosub gxWrite3	'return to home position
+
+	End

@@ -1,0 +1,203 @@
+[Root]
+Most Recent Package=Gamoto Standard Setup Package 1
+Most Recent Deploy=Gamoto Folder Deployment 1
+
+
+[Package|Gamoto Dep File 1|Root]
+SubWizProgID=PDWizard.DepPkgSubWiz
+BuildFolder=C:\Gamoto\vb\bin
+
+[Package|Gamoto Dep File 1|Configure DAO ISAMs]
+Applicable=No
+
+[Package|Gamoto Dep File 1|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|Gamoto Dep File 1|Files Found]
+
+[Package|Gamoto Dep File 1|Files Released]
+
+[Package|Gamoto Dep File 1|Missing Dependency Information]
+
+[Package|Gamoto Dep File 1|Out-of-Date Dependency Information]
+
+[Package|Gamoto Dep File 1|Files Added]
+
+[Package|Gamoto Dep File 1|Files Removed]
+
+[Package|Gamoto Dep File 1|Files In Project]
+C:\Gamoto\vb\bin\MotoView.exe=Yes
+C:\WINNT\system32\MSVBVM60.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\WINNT\system32\MSCOMM32.OCX=Yes
+C:\WINNT\system32\mscomctl.ocx=Yes
+C:\WINNT\system32\Mschrt20.ocx=Yes
+
+[Package|Gamoto Dep File 1|Configure Registry Files]
+Applicable=
+
+[Package|Gamoto Dep File 1|Configure Remote Servers]
+Applicable=
+
+[Package|Gamoto Dep File 1|Install Locations]
+C:\Gamoto\vb\bin\MotoView.exe=$(AppPath)
+C:\WINNT\system32\MSVBVM60.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\WINNT\system32\MSCOMM32.OCX=$(WinSysPath)
+C:\WINNT\system32\mscomctl.ocx=$(WinSysPath)
+C:\WINNT\system32\Mschrt20.ocx=$(WinSysPath)
+
+[Package|Gamoto Dep File 1|Configure Shared Files]
+Applicable=
+
+[Package|Gamoto Dep File 1|DepFile]
+DepCabFile=MotoView.CAB
+DepCabRun=MotoView.INF
+
+[Package|Gamoto Dep File 1|Package]
+PackageFolder=C:\Gamoto\vb\bin
+ProjectFolder=C:\Gamoto\vb\src
+ServerSideCab=
+File1=C:\Gamoto\vb\bin\MotoView.DEP
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
+
+[Deploy|Gamoto Folder Deployment 1|Root]
+Package=Gamoto Dep File 1
+Handler=PDWizard.FolderDplySubWiz
+Folder=C:\Gamoto\vb\deployment
+
+
+[Package|Gamoto Standard Setup Package 1|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=c:\Gamoto\vb\bin
+
+[Package|Gamoto Standard Setup Package 1|Configure DAO ISAMs]
+Applicable=No
+
+[Package|Gamoto Standard Setup Package 1|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|Gamoto Standard Setup Package 1|Files Found]
+motoview_um.pdf=C:\gamoto\docs\motoview_um.pdf
+
+[Package|Gamoto Standard Setup Package 1|Files Released]
+
+[Package|Gamoto Standard Setup Package 1|Missing Dependency Information]
+
+[Package|Gamoto Standard Setup Package 1|Out-of-Date Dependency Information]
+C:\WINNT\system32\RICHTX32.OCX=
+C:\WINNT\system32\COMDLG32.OCX=
+C:\WINNT\system32\mscomctl.ocx=
+C:\WINDOWS\system32\richtx32.ocx=
+C:\WINDOWS\system32\comdlg32.ocx=
+C:\WINDOWS\system32\MSCOMCTL.OCX=
+
+[Package|Gamoto Standard Setup Package 1|Files Added]
+motoview_um.pdf=
+
+[Package|Gamoto Standard Setup Package 1|Files Removed]
+
+[Package|Gamoto Standard Setup Package 1|Files In Project]
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\RICHED32.DLL=Yes
+C:\WINDOWS\system32\msvbvm60.dll=Yes
+C:\WINDOWS\system32\MSCOMM32.OCX=Yes
+C:\WINDOWS\system32\MSCOMCTL.OCX=Yes
+C:\WINDOWS\system32\MSCHRT20.OCX=Yes
+C:\WINDOWS\system32\COMDLG32.OCX=Yes
+C:\WINDOWS\system32\RICHTX32.OCX=Yes
+C:\WINDOWS\system32\VB6STKIT.DLL=Yes
+C:\gamoto\vb\bin\Support\MotoView.exe=Yes
+C:\gamoto\docs\motoview_um.pdf=Yes
+
+[Package|Gamoto Standard Setup Package 1|Configure Registry Files]
+Applicable=No
+
+[Package|Gamoto Standard Setup Package 1|Configure Remote Servers]
+Applicable=No
+
+[Package|Gamoto Standard Setup Package 1|Install Locations]
+C:\Gamoto\vb\bin\MotoView.exe=$(AppPath)
+C:\WINNT\system32\MSVBVM60.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\WINNT\system32\MSCOMM32.OCX=$(WinSysPath)
+C:\WINNT\system32\mscomctl.ocx=$(WinSysPath)
+C:\WINNT\system32\Mschrt20.ocx=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINNT\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+C:\gamoto\vb\bin\Support\MotoView.exe=$(AppPath)
+D:\gamoto\vb\bin\Support\MotoView.exe=$(AppPath)
+C:\WINDOWS\system32\MSVBVM60.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\system32\MSCOMM32.OCX=$(WinSysPath)
+C:\WINDOWS\system32\mscomctl.ocx=$(WinSysPath)
+C:\WINDOWS\system32\Mschrt20.ocx=$(WinSysPath)
+C:\WINDOWS\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\system32\COMDLG32.OCX=$(WinSysPath)
+C:\WINDOWS\system32\RICHTX32.OCX=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\RICHED32.DLL=$(WinSysPathSysFile)
+D:\gamoto\docs\motoview_um.pdf=$(AppPath)
+C:\WINNT\system32\COMDLG32.OCX=$(WinSysPath)
+C:\WINNT\system32\RICHTX32.OCX=$(WinSysPath)
+C:\gamoto\docs\motoview_um.pdf=$(AppPath)
+
+[Package|Gamoto Standard Setup Package 1|Configure Shared Files]
+Applicable=Yes
+C:\Gamoto\vb\bin\MotoView.exe=No
+C:\gamoto\vb\bin\Support\MotoView.exe=No
+D:\gamoto\vb\bin\Support\MotoView.exe=No
+D:\gamoto\docs\motoview_um.pdf=No
+C:\gamoto\docs\motoview_um.pdf=No
+
+[Package|Gamoto Standard Setup Package 1|Distribution]
+Type=single
+Size=
+Title=MotoView
+
+[Package|Gamoto Standard Setup Package 1|IconGroups]
+Group0=Gamatronix
+PrivateGroup0=0
+Parent0=$(Programs)
+
+[Package|Gamoto Standard Setup Package 1|Gamatronix]
+Icon1=MotoView.exe
+Title1=MotoView
+StartIn1=$(AppPath)
+Key1=Icon1
+Icon2=motoview_um.pdf
+Title2=MotoView User Manual
+StartIn2=$(AppPath)
+Key2=Icon2
+
+[Package|Gamoto Standard Setup Package 1|Package]
+PackageFolder=c:\Gamoto\vb\bin
+ProjectFolder=C:\gamoto\vb\src\MotoView_Standard
+ServerSideCab=
+File1=c:\Gamoto\vb\bin\setup.exe
+File2=c:\Gamoto\vb\bin\Setup.Lst
+File3=c:\Gamoto\vb\bin\MotoView.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
